@@ -42,6 +42,12 @@ def detail_url(recipe_id):
     return reverse('recipe:recipe-detail', args=[recipe_id])
 
 
+def create_user(**params):
+    """Helper function to create a user"""
+
+    return get_user_model().objects.create_user(**params)
+
+
 class PublicRecipeApiTests(TestCase):
     """Test unauthenticated recipe API access"""
 
@@ -61,10 +67,7 @@ class PrivateRecipeApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(
-            'sample@user.com',
-            'testpass'
-        )
+        self.user = create_user(email='test@sample', password='testpass')
         self.client.force_authenticate(self.user)
 
     def test_retrieve_recipes(self):
@@ -84,10 +87,7 @@ class PrivateRecipeApiTests(TestCase):
     def test_recipes_limited_to_user(self):
         """Test retrieving recipes is limited to user"""
 
-        other_user = get_user_model().objects.create_user(
-            'other@sample.com',
-            'testpass'
-        )
+        other_user = create_user(email='other@sample.com', password='testpass')
 
         create_recipe(user=other_user)
         create_recipe(user=self.user)
@@ -133,4 +133,26 @@ class PrivateRecipeApiTests(TestCase):
 
         for k, v in payload.items():
             self.assertEqual(getattr(recipe, k), v)
+        self.assertEqual(recipe.user, self.user)
+
+    def test_partial_update(self):
+        """Test partial update of a recipe"""
+
+        original_link = 'http://www.google.com'
+        recipe = create_recipe(
+            user=self.user,
+            title='Sample title',
+            link=original_link
+        )
+
+        payload = {'title': 'New title'}
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(recipe.title, payload['title'])
+        self.assertEqual(recipe.link, original_link)
         self.assertEqual(recipe.user, self.user)
