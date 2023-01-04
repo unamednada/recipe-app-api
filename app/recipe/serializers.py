@@ -2,7 +2,7 @@
 Serializers for recipe API
 """
 
-from rest_framework import serializers
+from rest_framework import serializers 
 
 from core.models import (
     Recipe,
@@ -55,7 +55,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 **tag
             )
             recipe.tags.add(tag_obj)
-    
+
     def _get_or_create_ingredients(self, ingredients, recipe):
         """Get or create ingredients"""
 
