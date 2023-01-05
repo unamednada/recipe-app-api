@@ -4,7 +4,7 @@ Tests for recipe APIs
 import tempfile
 import os
 
-from PIL import Image 
+from PIL import Image
 
 from decimal import Decimal
 
