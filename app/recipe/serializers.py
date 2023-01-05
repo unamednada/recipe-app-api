@@ -107,7 +107,7 @@ class RecipeDetailSerializer(RecipeSerializer):
     """Serialize a recipe detail"""
 
     class Meta(RecipeSerializer.Meta):
-        fields = RecipeSerializer.Meta.fields + ['description']
+        fields = RecipeSerializer.Meta.fields + ['description', 'image']
         read_only_fields = ['id']
 
 
